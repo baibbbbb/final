@@ -36,25 +36,41 @@ typedef struct{
       float period; // 音符持续时间，单位为拍
   } Bate;
 
-//播放状态
-uint8_t playState = 0;
+class SongPlayer {
+public:
+    const Bate* song;      // 歌曲数组指针
+    size_t songLength;     // 歌曲长度
+    uint8_t playState;     // 播放状态
+    uint16_t bpm;          // 节拍速度，每分钟拍多少拍
+    float noteDuration;    // 音符持续时间，单位为毫秒
+    uint16_t playIndex = 0; // 播放进度
 
-//播放进度
-uint16_t playIndex = 0;
+    SongPlayer(const Bate* song, uint8_t playState, uint16_t bpm)
+        : song(song), playState(playState), bpm(bpm)
+    {
+        // 计算歌曲长度
+        songLength = sizeof(Moon) / sizeof(Moon[0]);
+        noteDuration = 1000.0f * 60.0f / this->bpm;
+    }
 
-//节拍速度（每分钟多少拍）
-uint8_t bpm = 132;
-
-//每拍的持续时间
-float noteDuration = 1000 * 60 / bpm;
-
-//定义音符数组
-const Bate Moon[] = {
-  // 你问我爱你有多深
-  {L5, 0.5f}, {M1, 1.5f}, {M3, 0.5f}, {M5, 1.5f}, {M1,0.5f}, {L7, 1.5f}, {M3, 0.5f}, {M5, 1.0f}, {P0, 0.5f},
-
-  // 我爱你有几分
-  {M5, 0.5f}, {M6, 1.5f}, {M7, 0.5f}, {H1, 1.5f}, {M6, 1.0f}, {M5, 1.5f}
+    void play() {
+        if (playState == 1) {
+            if (playIndex < songLength) {
+                buzzer.set(song[playIndex].frequency, 0.5f);
+                buzzer.start();
+                osDelay(song[playIndex].period * noteDuration); //音符间隔
+                buzzer.stop();
+                osDelay(50); 
+                playIndex++;
+            } else {
+                playState = 0; // 播放结束，重置状态
+                playIndex = 0; // 重置播放索引
+            }
+        }
+    }
 };
 
-#endif
+// 使用示例：
+// SongPlayer player(Moon, 1, 120);
+
+#endif // BUZZER_TASK_HPP

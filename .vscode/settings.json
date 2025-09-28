@@ -1,7 +1,21 @@
 {
     "files.associations": {
         "*.h": "c",
-        "cstdint": "cpp"
+        "cstdint": "cpp",
+        "array": "cpp",
+        "bit": "cpp",
+        "cmath": "cpp",
+        "compare": "cpp",
+        "concepts": "cpp",
+        "cstdarg": "cpp",
+        "cstddef": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "type_traits": "cpp",
+        "initializer_list": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "typeinfo": "cpp"
     },
     "editor.formatOnSave": true,
     "[c]": {
@@ -23,4 +37,5 @@
             "statusBarVisibility": "hidden",
         },
     },
+    "C_Cpp.errorSquiggles": "disabled",
 }
