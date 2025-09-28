@@ -77,6 +77,11 @@ const Bate Moon[] = {
     {M5, 0.5f}, {M6, 1.5f}, {M7, 0.5f}, {H1, 1.5f}, {M6, 1.0f}, {M5, 1.5f}
 };
 
+const Bate Chengdu[] = {
+    {L5, 0.5f}, {M1, 1.5f}, {M2, 1.0f}, {M3, 0.5f}, {M5, 0.5f}, {M3, 0.5f}, {M3, 1.0f}
+    {L5, 0.5f}, {M1, 1.5f}, {M2, 0.5f}, {M1, 0.5f}, {L6, 0.5f}, {L5, 1.5f}
+};
+
 // 使用示例：
 // SongPlayer player(Moon, sizeof(Moon)/sizeof(Moon[0]), 1, 120);
 
@@ -92,9 +97,11 @@ extern "C" void buzzer_task()
     }
 
     SongPlayer SongMoon(Moon, sizeof(Moon)/sizeof(Moon[0]), 1, 78);
+    SongPlayer SongChengdu(Chengdu, sizeof(Chengdu)/sizeof(Chengdu[0]), 1, 180);
 
     while (true) {
         //SongMoon.play();
+        //SongChengdu.play();
         osDelay(100);
     }
 }
