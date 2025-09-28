@@ -39,33 +39,33 @@ typedef struct{
 class SongPlayer {
 public:
     const Bate* song; 
-    size_t songLength; //歌曲长度
-    uint8_t playState; //是否播放
+    size_t song_length; //歌曲长度
+    uint8_t play_state; //是否播放
     uint16_t bpm; //播放速度
-    float noteDuration; //每节音符时长
-    uint16_t playIndex = 0; //播放进度
+    float note_duration; //每节音符时长
+    uint16_t play_index = 0; //播放进度
 
-    SongPlayer(const Bate* song, size_t songLength, uint8_t playState, uint16_t bpm)
-        : song(song), songLength(songLength), playState(playState), bpm(bpm)
+    SongPlayer(const Bate* song, size_t song_length, uint8_t play_state, uint16_t bpm)
+        : song(song), song_length(song_length), play_state(play_state), bpm(bpm)
     {
-        noteDuration = 1000.0f * 60.0f / this->bpm;
+        note_duration = 1000.0f * 60.0f / this->bpm;
     }
 
    //播放函数
     void play() {
-        if (playState == 1) {
-            if (playIndex < songLength) {
-                buzzer.set(song[playIndex].frequency, 0.5f);
+        if (play_state == 1) {
+            if (play_index < song_length) {
+                buzzer.set(song[play_index].frequency, 0.5f);
                 buzzer.start();
-                osDelay(song[playIndex].period * noteDuration);
+                osDelay(song[play_index].period * note_duration);
                 buzzer.stop();
                 osDelay(50);
-                playIndex++;
+                play_index++;
             } 
             
             else {
-                playState = 0;
-                playIndex = 0;
+                play_state = 0;
+                play_index = 0;
             }
         }
     }
@@ -91,10 +91,10 @@ extern "C" void buzzer_task()
      osDelay(100);
     }
 
-    SongPlayer songMoon(Moon, sizeof(Moon)/sizeof(Moon[0]), 1, 78);
+    SongPlayer SongMoon(Moon, sizeof(Moon)/sizeof(Moon[0]), 1, 78);
 
     while (true) {
-        //songMoon.play();
+        //SongMoon.play();
         osDelay(100);
     }
 }

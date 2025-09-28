@@ -13,7 +13,7 @@ extern "C" void servo_task()
     float angle = 0.0f;
     const float step = 1.0f;         // 每步增加1度
     const int delay_ms = 1000 / 45;  // 每步时长，1秒转45度
-    const int servo_start = 1;
+    const int servo_start = 0;
     
     while (true) {       
         
