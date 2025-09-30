@@ -7,26 +7,33 @@
 
 extern sp::DBus remote;
 
-sp::CAN can1(&hcan1);
+sp::CAN can2(&hcan2);
 
 //                         dt     kp    ki    kd    mo   mio   alpha  ang? dynamic?
-sp::PID rm_motor0_speed(0.001f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
-sp::PID rm_motor1_speed(0.001f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
-sp::PID rm_motor2_speed(0.001f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
-sp::PID rm_motor3_speed(0.001f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
+sp::PID rm_motor0_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
+sp::PID rm_motor1_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
+sp::PID rm_motor2_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
+sp::PID rm_motor3_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
 
+MotorData rm_motor0_data;
+MotorData rm_motor1_data;  
+MotorData rm_motor2_data;  
+MotorData rm_motor3_data;   
+
+float vx = 0.0f;
+float vy = 0.0f;
+float w = 0.0f;
+
+MotorSpeed motor_speed;
+  
 extern "C" void can_task()
 {
-  can1.config();
-  can1.start();
+  can2.config();
+  can2.start();
   remote.request();
 
-  MotorData rm_motor0_data;
-  MotorData rm_motor1_data;  
-  MotorData rm_motor2_data;  
-  MotorData rm_motor3_data;    
-  
   // 初始化
+ 
   rm_motor0_data.absolute_speed_set = 0.0f;
   rm_motor0_data.given_torque = 0.0f;
 
@@ -39,9 +46,17 @@ extern "C" void can_task()
   rm_motor3_data.absolute_speed_set = 0.0f;
   rm_motor3_data.given_torque = 0.0f;
 
-  MotorSpeed motor_speed;
 
   while (true) {
+    
+    vx = -remote.ch_lv * 2.0f; //底盘x方向速度, 单位: m/s
+    vy = remote.ch_lh * 2.0f; //底盘y方向速度, 单位: m/s
+    w = remote.ch_rh * 2.0f + remote.ch_rv * 2.0f;  //底盘角速度，单位: rad/s
+
+    motor_speed.w0 = (-vx + vy + (a + b) * w) / s; //电机0速度，单位: rad/s
+    motor_speed.w1 = (-vx - vy + (a + b) * w) / s; //电机1速度，单位: rad/s
+    motor_speed.w2 = (vx - vy + (a + b) * w) / s; //电机2速度，单位: rad/s
+    motor_speed.w3 = (vx + vy + (a + b) * w) / s; //电机3速度，单位: rad/s
 
     rm_motor0_data.absolute_speed_set = motor_speed.w0;
     rm_motor1_data.absolute_speed_set = motor_speed.w1;
@@ -80,20 +95,20 @@ extern "C" void can_task()
     }
 
     motor0.cmd(rm_motor0_data.given_torque);
-    motor0.write(can1.tx_data);
-    can1.send(motor0.tx_id);
+    motor0.write(can2.tx_data);
+    can2.send(motor0.tx_id);
 
     motor1.cmd(rm_motor1_data.given_torque);
-    motor1.write(can1.tx_data);
-    can1.send(motor1.tx_id);
+    motor1.write(can2.tx_data);
+    can2.send(motor1.tx_id);
 
     motor2.cmd(rm_motor2_data.given_torque);
-    motor2.write(can1.tx_data);
-    can1.send(motor2.tx_id);
+    motor2.write(can2.tx_data);
+    can2.send(motor2.tx_id);
 
     motor3.cmd(rm_motor3_data.given_torque);
-    motor3.write(can1.tx_data);
-    can1.send(motor3.tx_id);
+    motor3.write(can2.tx_data);
+    can2.send(motor3.tx_id);
 
     osDelay(1);
   }
@@ -104,14 +119,14 @@ extern "C" void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef * hcan)
   auto stamp_ms = osKernelSysTick();
 
   while (HAL_CAN_GetRxFifoFillLevel(hcan, CAN_RX_FIFO0) > 0) {
-    if (hcan == &hcan1) {
-      can1.recv();
+    if (hcan == &hcan2) {
+      can2.recv();
 
       // 接收各个电机信息
-      if (can1.rx_id == motor0.rx_id) motor0.read(can1.rx_data, stamp_ms);
-      if (can1.rx_id == motor1.rx_id) motor1.read(can1.rx_data, stamp_ms);
-      if (can1.rx_id == motor2.rx_id) motor2.read(can1.rx_data, stamp_ms);
-      if (can1.rx_id == motor3.rx_id) motor3.read(can1.rx_data, stamp_ms);
+      if (can2.rx_id == motor0.rx_id) motor0.read(can2.rx_data, stamp_ms);
+      if (can2.rx_id == motor1.rx_id) motor1.read(can2.rx_data, stamp_ms);
+      if (can2.rx_id == motor2.rx_id) motor2.read(can2.rx_data, stamp_ms);
+      if (can2.rx_id == motor3.rx_id) motor3.read(can2.rx_data, stamp_ms);
     }
   }
 }

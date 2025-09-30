@@ -21,19 +21,17 @@ extern float vx;
 extern float vy;
 extern float w;
 
-inline sp::RM_Motor motor0(1, sp::RM_Motors::M3508);
-inline sp::RM_Motor motor1(2, sp::RM_Motors::M3508);
-inline sp::RM_Motor motor2(3, sp::RM_Motors::M3508);
-inline sp::RM_Motor motor3(4, sp::RM_Motors::M3508);
+inline sp::RM_Motor motor3(1, sp::RM_Motors::M3508, 14.9f, true);
+inline sp::RM_Motor motor0(2, sp::RM_Motors::M3508, 14.9f, true);
+inline sp::RM_Motor motor1(3, sp::RM_Motors::M3508, 14.9f, true);
+inline sp::RM_Motor motor2(4, sp::RM_Motors::M3508, 14.9f, true);
 
 //麦轮底盘运动逆解算
 typedef struct {
-  
-  float w0 = (-vx + vy + (a + b) * w) / s; //电机0速度，单位: rad/s
-  float w1 = (-vx - vy + (a + b) * w) / s; //电机1速度，单位: rad/s
-  float w2 = (vx - vy + (a + b) * w) / s; //电机2速度，单位: rad/s
-  float w3 = (vx + vy + (a + b) * w) / s; //电机3速度，单位: rad/s
-
+  float w0;//电机0速度，单位: rad/s
+  float w1; //电机1速度，单位: rad/s
+  float w2; //电机2速度，单位: rad/s
+  float w3; //电机3速度，单位: rad/s
 } MotorSpeed;
 
 typedef struct{
