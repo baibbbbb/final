@@ -10,10 +10,10 @@ extern sp::DBus remote;
 sp::CAN can1(&hcan1);
 
 //                         dt     kp    ki    kd    mo   mio   alpha  ang? dynamic?
-sp::PID rm_motor0_speed(0.001f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, false, true);
-sp::PID rm_motor1_speed(0.001f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, false, true);
-sp::PID rm_motor2_speed(0.001f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, false, true);
-sp::PID rm_motor3_speed(0.001f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, false, true);
+sp::PID rm_motor0_speed(0.001f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
+sp::PID rm_motor1_speed(0.001f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
+sp::PID rm_motor2_speed(0.001f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
+sp::PID rm_motor3_speed(0.001f, 0.0f, 0.0f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
 
 extern "C" void can_task()
 {
@@ -21,6 +21,11 @@ extern "C" void can_task()
   can1.start();
   remote.request();
 
+  MotorData rm_motor0_data;
+  MotorData rm_motor1_data;  
+  MotorData rm_motor2_data;  
+  MotorData rm_motor3_data;    
+  
   // 初始化
   rm_motor0_data.absolute_speed_set = 0.0f;
   rm_motor0_data.given_torque = 0.0f;
@@ -89,6 +94,8 @@ extern "C" void can_task()
     motor3.cmd(rm_motor3_data.given_torque);
     motor3.write(can1.tx_data);
     can1.send(motor3.tx_id);
+
+    osDelay(1);
   }
 }
 

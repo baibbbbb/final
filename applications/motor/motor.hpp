@@ -17,9 +17,9 @@ constexpr float a = 0.185f; //电机x坐标
 constexpr float b = 0.165f; //电机y坐标
 constexpr float s = 0.154f;  //麦轮半径
 
-float vx = remote.ch_lv * 3.0f; //底盘x方向速度, 单位: m/s
-float vy = remote.ch_lh * 3.0f; //底盘y方向速度, 单位: m/s
-float w = remote.ch_rh * 2.0f + remote.ch_rv * 2.0f;  //底盘角速度，单位: rad/s
+extern float vx;
+extern float vy;
+extern float w;
 
 inline sp::RM_Motor motor0(1, sp::RM_Motors::M3508);
 inline sp::RM_Motor motor1(2, sp::RM_Motors::M3508);
@@ -40,11 +40,5 @@ typedef struct{
 	float absolute_speed_set;	// 绝对速度的目标值，rad/s
 	float given_torque;			// 电机给定的力矩，Nm
 } MotorData;
-
-MotorData rm_motor0_data;
-MotorData rm_motor1_data;  
-MotorData rm_motor2_data;  
-MotorData rm_motor3_data;    
-
 
 #endif  // MOTOR_HPP
