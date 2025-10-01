@@ -4,6 +4,7 @@
 #include "motor/motor.hpp"
 #include "motor/rm_motor/rm_motor.hpp"
 #include "tools/pid/pid.hpp"
+#include "power/power.hpp"
 
 extern sp::DBus remote;
 
@@ -14,6 +15,7 @@ sp::PID rm_motor0_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true)
 sp::PID rm_motor1_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
 sp::PID rm_motor2_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
 sp::PID rm_motor3_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
+sp::Power power(2.0f, 0.01f, 0.0f, 80.0f); //功率限制 
 
 MotorData rm_motor0_data;
 MotorData rm_motor1_data;  
@@ -64,24 +66,32 @@ extern "C" void can_task()
     rm_motor3_data.absolute_speed_set = motor_speed.w3;
 
     // 计算PID输出值
+
     switch (remote.sw_r) {
       case sp::DBusSwitchMode::MID:
+        // 功率限制
+        
         rm_motor0_speed.calc(
           rm_motor0_data.absolute_speed_set, motor0.speed);  // 设定值，反馈值
-        rm_motor0_data.given_torque = rm_motor0_speed.out;           // 扭矩
 
         rm_motor1_speed.calc(
           rm_motor1_data.absolute_speed_set, motor1.speed);  // 设定值，反馈值
-        rm_motor1_data.given_torque = rm_motor1_speed.out;           // 扭矩
 
         rm_motor2_speed.calc(
           rm_motor2_data.absolute_speed_set, motor2.speed);  // 设定值，反馈值
-        rm_motor2_data.given_torque = rm_motor2_speed.out;           // 扭矩
 
         rm_motor3_speed.calc(
           rm_motor3_data.absolute_speed_set, motor3.speed);  // 设定值，反馈值
-        rm_motor3_data.given_torque = rm_motor3_speed.out;           // 扭矩
-        break;
+
+        power.calcpower(rm_motor0_data.absolute_speed_set, rm_motor0_speed.out,
+                        rm_motor1_data.absolute_speed_set, rm_motor1_speed.out,
+                        rm_motor2_data.absolute_speed_set, rm_motor2_speed.out,
+                        rm_motor3_data.absolute_speed_set, rm_motor3_speed.out);
+        
+        rm_motor0_data.given_torque = power.out * rm_motor0_speed.out;
+        rm_motor1_data.given_torque = power.out * rm_motor1_speed.out; 
+        rm_motor2_data.given_torque = power.out * rm_motor2_speed.out;
+        rm_motor3_data.given_torque = power.out * rm_motor3_speed.out;
 
       case sp::DBusSwitchMode::DOWN:
         rm_motor0_data.given_torque = 0.0f;

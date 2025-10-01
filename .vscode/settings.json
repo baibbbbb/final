@@ -44,7 +44,10 @@
         "numbers": "cpp",
         "ostream": "cpp",
         "stdexcept": "cpp",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "xmemory": "cpp",
+        "xutility": "cpp",
+        "xstring": "cpp"
     },
     "editor.formatOnSave": true,
     "[c]": {
