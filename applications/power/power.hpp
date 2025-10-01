@@ -36,11 +36,12 @@ public:
             float set2, float pid_out2, 
             float set3, float pid_out3);
 
+  void setPmax(float value);
+
 private:
     const float k1_, k2_, k3_;
-    const float pmax_;
-    };
-
+    float pmax_;
+  };
 } // namespace sp
 #endif // SP__POWER_HPP
 
