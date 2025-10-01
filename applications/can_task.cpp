@@ -6,8 +6,10 @@
 #include "motor/super_cap/super_cap.hpp"
 #include "power/power.hpp"
 #include "tools/pid/pid.hpp"
+#include "referee/pm02/pm02.hpp"
 
 extern sp::DBus remote;
+extern sp::PM02 pm02;
 
 sp::CAN can2(&hcan2);
 
@@ -17,9 +19,10 @@ sp::PID rm_motor1_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true)
 sp::PID rm_motor2_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
 sp::PID rm_motor3_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
 
-sp::Power power(2.5f, 0.01f, 7.6f, 80.0f);  //功率限制
+float dynamic_pmax = pm02.robot_status.chassis_power_limit;  // 动态功率限制
 
-sp::SuperCap super_cap(sp::SuperCapMode::DISCHARGE_DISOUTPUT);
+sp::Power power(2.5f, 0.01f, 7.6f, 80);  //功率限制
+sp::SuperCap super_cap(sp::SuperCapMode::AUTOMODE);
 
 MotorData rm_motor0_data;
 MotorData rm_motor1_data;
@@ -103,6 +106,23 @@ extern "C" void can_task()
       default:
         break;
     }
+
+  if (super_cap.is_alive(osKernelSysTick())) {
+    switch (remote.sw_l) {
+        case sp::DBusSwitchMode::UP:
+           // 自动模式
+            if (super_cap.cap_energy > 62.5f) {
+                dynamic_pmax = 200.0f; // 电容有电，放宽功率限制
+            } else if (super_cap.cap_energy < 62.5f) {
+                dynamic_pmax = pm02.robot_status.chassis_power_limit;  // 电量低，收紧功率
+            }
+            break;
+
+        case sp::DBusSwitchMode::MID:  // 仅充电
+            dynamic_pmax = pm02.robot_status.chassis_power_limit;      // 固定上限
+            break;
+    }
+}
 
     motor0.cmd(rm_motor0_data.given_torque);
     motor0.write(can2.tx_data);
