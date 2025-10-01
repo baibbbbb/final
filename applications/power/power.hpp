@@ -40,8 +40,7 @@ private:
     const float k1_, k2_, k3_;
     const float pmax_;
     };
-    
-}  // namespace sp
 
+} // namespace sp
 #endif // SP__POWER_HPP
 

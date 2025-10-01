@@ -52,6 +52,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     applications/can_task.cpp
     applications/plotter_task.cpp
     applications/power/power.cpp
+    sp_middleware/motor/super_cap/super_cap.cpp
     
     sp_middleware/io/buzzer/buzzer.cpp
     sp_middleware/io/led/led.cpp

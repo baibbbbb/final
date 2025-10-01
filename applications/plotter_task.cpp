@@ -3,7 +3,9 @@
 #include "io/plotter/plotter.hpp"
 #include "motor/motor.hpp"
 #include "motor/rm_motor/rm_motor.hpp"
+#include "power/power.hpp"
 #include "tools/pid/pid.hpp"
+#include "motor/super_cap/super_cap.hpp"
 
 sp::Plotter plotter(&huart1);
 
@@ -17,18 +19,17 @@ extern MotorData rm_motor1_data;
 extern MotorData rm_motor2_data;
 extern MotorData rm_motor3_data;
 
+extern sp::Power power;
+extern sp::SuperCap super_cap;
+
 extern "C" void plotter_task()
 {
   while (true) {
     plotter.plot(
+      
+      super_cap.power_in - super_cap.power_out,
 
-      motor0.speed, rm_motor0_data.absolute_speed_set,
-
-      motor1.speed, rm_motor1_data.absolute_speed_set,
-
-      motor2.speed, rm_motor2_data.absolute_speed_set,
-
-      motor3.speed, rm_motor3_data.absolute_speed_set
+      power.data.p_in 
 
     );
 
