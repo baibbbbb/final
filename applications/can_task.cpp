@@ -57,7 +57,7 @@ extern "C" void can_task()
   while (true) {
     vx = -remote.ch_lv * 5.0f;                      //底盘x方向速度, 单位: m/s
     vy = remote.ch_lh * 5.0f;                       //底盘y方向速度, 单位: m/s
-    w = remote.ch_rh * 15.0f + remote.ch_rv * 15.0f;  //底盘角速度，单位: rad/s
+    w = remote.ch_rh * 2.0f + remote.ch_rv * 2.0f;  //底盘角速度，单位: rad/s
 
     motor_speed.w0 = (-vx + vy + (a + b) * w) / s;  //电机0速度，单位: rad/s
     motor_speed.w1 = (-vx - vy + (a + b) * w) / s;  //电机1速度，单位: rad/s
