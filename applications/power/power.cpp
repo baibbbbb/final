@@ -10,6 +10,8 @@ Power::Power(float k1, float k2, float k3, float pmax)
 
 void Power::setPmax(float value) { pmax_ = value; }
 
+float Power::getPmax() const { return pmax_; }
+
 void Power::calcpower(float set0, float pid_out0, 
                        float set1, float pid_out1, 
                        float set2, float pid_out2, 

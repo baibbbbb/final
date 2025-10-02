@@ -20,7 +20,7 @@ sp::PID rm_motor2_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true)
 sp::PID rm_motor3_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
 
 sp::Power power(2.5f, 0.01f, 7.6f, 80);  //功率限制
-sp::SuperCap super_cap(sp::SuperCapMode::AUTOMODE);
+sp::SuperCap super_cap(sp::SuperCapMode::DISCHARGE);
 
 MotorData rm_motor0_data;
 MotorData rm_motor1_data;
@@ -53,10 +53,11 @@ extern "C" void can_task()
   rm_motor3_data.absolute_speed_set = 0.0f;
   rm_motor3_data.given_torque = 0.0f;
 
+
   while (true) {
     vx = -remote.ch_lv * 5.0f;                      //底盘x方向速度, 单位: m/s
     vy = remote.ch_lh * 5.0f;                       //底盘y方向速度, 单位: m/s
-    w = remote.ch_rh * 5.0f + remote.ch_rv * 5.0f;  //底盘角速度，单位: rad/s
+    w = remote.ch_rh * 15.0f + remote.ch_rv * 15.0f;  //底盘角速度，单位: rad/s
 
     motor_speed.w0 = (-vx + vy + (a + b) * w) / s;  //电机0速度，单位: rad/s
     motor_speed.w1 = (-vx - vy + (a + b) * w) / s;  //电机1速度，单位: rad/s

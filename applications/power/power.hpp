@@ -38,6 +38,8 @@ public:
 
   void setPmax(float value);
 
+  float getPmax() const;
+
 private:
     const float k1_, k2_, k3_;
     float pmax_;
