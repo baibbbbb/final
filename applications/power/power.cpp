@@ -1,16 +1,16 @@
 #include "power.hpp"
 #include <cmath> // sqrt
 
-namespace sp {
+namespace mx {
     
 Power::Power(float k1, float k2, float k3, float pmax)
 : k1_(k1), k2_(k2), k3_(k3), pmax_(pmax)
 {
 }
 
-void Power::setPmax(float value) { pmax_ = value; }
+void Power::set_pmax(float value) { pmax_ = value; }
 
-float Power::getPmax() const { return pmax_; }
+float Power::get_pmax() const { return pmax_; }
 
 void Power::calcpower(float set0, float pid_out0, 
                        float set1, float pid_out1, 
@@ -46,6 +46,6 @@ void Power::calcpower(float set0, float pid_out0,
         this->out = this->data.k;
     }
 }
-} // namespace sp
+} // namespace mx
 
     

@@ -3,7 +3,7 @@
 
 #include "tools/math_tools/math_tools.hpp"
 
-namespace sp 
+namespace mx 
 {
 struct PowerData
 {
@@ -36,14 +36,14 @@ public:
             float set2, float pid_out2, 
             float set3, float pid_out3);
 
-  void setPmax(float value);
+  void set_pmax(float value);
 
-  float getPmax() const;
+  float get_pmax() const;
 
 private:
     const float k1_, k2_, k3_;
     float pmax_;
   };
-} // namespace sp
+} // namespace mx
 #endif // SP__POWER_HPP
 

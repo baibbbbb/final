@@ -19,9 +19,11 @@ sp::PID rm_motor1_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true)
 sp::PID rm_motor2_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
 sp::PID rm_motor3_speed(0.001f, 0.7f, 0.5f, 0.0f, 3.0f, 0.0f, 1.0f, false, true);
 
-sp::Power power(2.5f, 0.01f, 7.6f, 80);  //功率限制
 sp::SuperCap super_cap(sp::SuperCapMode::DISCHARGE);
 
+mx::Power power(2.5f, 0.01f, 7.6f, 80);  //功率限制
+
+//初始化期望电机转速与力矩
 MotorData rm_motor0_data;
 MotorData rm_motor1_data;
 MotorData rm_motor2_data;
@@ -31,6 +33,7 @@ float vx = 0.0f;
 float vy = 0.0f;
 float w = 0.0f;
 
+//初始化电机转子转速
 MotorSpeed motor_speed;
 
 extern "C" void can_task()
@@ -39,7 +42,7 @@ extern "C" void can_task()
   can2.start();
   remote.request();
 
-  // 初始化
+  // 初始化参数
 
   rm_motor0_data.absolute_speed_set = 0.0f;
   rm_motor0_data.given_torque = 0.0f;
@@ -55,10 +58,13 @@ extern "C" void can_task()
 
 
   while (true) {
+    
+    //遥控器指令映射底盘速度
     vx = -remote.ch_lv * 5.0f;                      //底盘x方向速度, 单位: m/s
     vy = remote.ch_lh * 5.0f;                       //底盘y方向速度, 单位: m/s
     w = remote.ch_rh * 2.0f + remote.ch_rv * 2.0f;  //底盘角速度，单位: rad/s
 
+    //麦轮底盘运动学逆解算
     motor_speed.w0 = (-vx + vy + (a + b) * w) / s;  //电机0速度，单位: rad/s
     motor_speed.w1 = (-vx - vy + (a + b) * w) / s;  //电机1速度，单位: rad/s
     motor_speed.w2 = (vx - vy + (a + b) * w) / s;   //电机2速度，单位: rad/s
@@ -72,6 +78,8 @@ extern "C" void can_task()
     // 计算PID输出值
 
     switch (remote.sw_r) {
+      
+      //右上拨杆中档 电机开启
       case sp::DBusSwitchMode::MID:
         // PID
 
@@ -96,7 +104,8 @@ extern "C" void can_task()
         rm_motor3_data.given_torque = power.out * rm_motor3_speed.out;
         break;
 
-      case sp::DBusSwitchMode::DOWN:
+      //右下拨杆下档 电机失能
+        case sp::DBusSwitchMode::DOWN:
         rm_motor0_data.given_torque = 0.0f;
         rm_motor1_data.given_torque = 0.0f;
         rm_motor2_data.given_torque = 0.0f;
@@ -107,19 +116,20 @@ extern "C" void can_task()
         break;
     }
 
-  if (super_cap.is_alive(osKernelSysTick())) {
+  //超级电容使用策略
+    if (super_cap.is_alive(osKernelSysTick())) {
     switch (remote.sw_l) {
         case sp::DBusSwitchMode::UP:
            // 自动模式
             if (super_cap.cap_energy > 62.5f) {
-                power.setPmax(200.0f); // 电容有电，放宽功率限制
+                power.set_pmax(200.0f); // 电容有电，放宽功率限制
             } else if (super_cap.cap_energy < 62.5f) {
-                power.setPmax(pm02.robot_status.chassis_power_limit);  // 电量低，收紧功率
+                power.set_pmax(pm02.robot_status.chassis_power_limit);  // 电量低，收紧功率
             }
             break;
 
         case sp::DBusSwitchMode::MID:  // 仅充电
-            power.setPmax(pm02.robot_status.chassis_power_limit);      // 固定上限
+            power.set_pmax(pm02.robot_status.chassis_power_limit);      // 固定上限
             break;
 
         default:
@@ -127,6 +137,7 @@ extern "C" void can_task()
     }
 }
 
+    //电机指令发送
     motor0.cmd(rm_motor0_data.given_torque);
     motor0.write(can2.tx_data);
     can2.send(motor0.tx_id);

@@ -19,7 +19,7 @@ extern MotorData rm_motor1_data;
 extern MotorData rm_motor2_data;
 extern MotorData rm_motor3_data;
 
-extern sp::Power power;
+extern mx::Power power;
 extern sp::SuperCap super_cap;
 
 extern "C" void plotter_task()
